@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 # author:xd
 from readability.readability import Document
-from currency_craler.all_web_es import News
+from base_temp.all_web_es import News
 import re
 from bs4 import BeautifulSoup
 import chardet
@@ -13,11 +13,11 @@ import datetime
 class BBS(News):
     def __init__(self, index_url):
         News.__init__(self, index_url, pools=100, url_distinct_model='mongo')
-        self.url_needs_reg = ['forum-2-', 'thread-\d{7}-1-']
-
+        # self.url_needs_reg = ['forum-2-', 'thread-\d{7}-1-']
     def parser_content(self, html, index_url):
         import pdb
         soup = BeautifulSoup(html, "html.parser")
+        open('temp.html', 'w').write(html)
         title = soup.find("title").get_text()
         first_note = soup.find("div", attrs={"class": "t_fsz"})
         html = str(first_note)
@@ -43,5 +43,5 @@ class BBS(News):
         print self.save_es.insert(index_url, data)
         # raw_input('go on')
 
-yongcuan_bbs = BBS('http://bbs.cqyc.net/forum-2-1.html')
+yongcuan_bbs = BBS('http://finance.qq.com/a/20170606/039580.htm')
 yongcuan_bbs.start()

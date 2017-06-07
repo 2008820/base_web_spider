@@ -22,8 +22,8 @@ client = MongoClient()
 DB = client['urlpool']
 SAVE_DB = client['all_web']
 
-url_db = ES('http://54.223.126.58', 'test_news', 'news_url')
-art_db = ES('http://54.223.126.58', 'test_news', 'news')
+url_db = ES('http://192.168.31.114', 'test_news', 'news_url')
+art_db = ES('http://192.168.31.114', 'test_news', 'news')
 
 
 
@@ -223,5 +223,5 @@ User-Agent:Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.ht
 
 
 if __name__ == '__main__':
-    p2p = News('http://python.jobbole.com/', 100)
+    p2p = News('http://finance.qq.com/c/gsbdlist_1.htm', 100)
     p2p.start()

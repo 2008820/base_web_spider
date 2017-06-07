@@ -101,6 +101,6 @@ class ES():
 
 
 if __name__ == '__main__':
-    news_es = ES(host='http://54.223.126.58', index="test_news", doc_type="news")
-    print news_es.alter_mapping('pubulish_time')
+    news_es = ES(host='http://192.168.31.114', index="test_news", doc_type="news")
+    print news_es.search('')
 

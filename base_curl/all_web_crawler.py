@@ -8,13 +8,14 @@ import time
 import traceback
 import urlparse
 
+from readability.readability import Document
+from pyquery import PyQuery
 import gevent
 from bs4 import BeautifulSoup
 from pymongo import MongoClient
 
 from util.time_parser import parse_time
 from util.xcrawler import crawler
-
 # monkey.patch_all()
 curl = crawler()
 
@@ -127,10 +128,33 @@ User-Agent:Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.ht
     def parser_match_time(self, timestamp):
         return parse_time(timestamp)
 
-    # 解析符合要求的,并入库
     def parser_content(self, html, index_url):
-        print self.targets
-        pass
+        content = self._parser_content(html, index_url)
+        print content
+
+    # 解析符合要求的,并入库
+    def _parser_content(self, html, index_url):
+        try:
+            readable_article = Document(html).summary(html_partial=True)
+            text_p = re.sub('</?div.*?>', '', readable_article)
+        except Exception as e:
+            return
+        content = PyQuery(readable_article).text()
+        if not content:
+            text_p = "<p></p>"
+        return content
+
+    def _add_visited_url(self, url):
+        if self.url_filter_model == 'mongo':
+            if self.CO.find_one({"url": url}):
+                return False
+            else:
+                return True
+        else:
+            if not self.visited.get(url, False):
+                return True
+            else:
+                return False
     
     def add_visited_url(self, url):
         if self.url_filter_model == 'mongo':
@@ -175,6 +199,7 @@ User-Agent:Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.ht
             return url
         clean_url_status = filter(_is_match, url_list)
         clean_url = list(set(clean_url_status))
+
         for _url in clean_url:
             try:
                 _urlanaly = urlparse.urlparse(_url)
@@ -199,8 +224,9 @@ User-Agent:Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.ht
 
             if not self.url_select(url):
                 continue
-            if not self.add_visited_url(url):
+            if not self._add_visited_url(url):
                 continue
+
             self.add_url(url)
 
 
@@ -252,5 +278,5 @@ User-Agent:Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.ht
 
 
 if __name__ == '__main__':
-    p2p = News('http://python.jobbole.com/', 50, url_distinct_model='mongo', init_url=1)
+    p2p = News('http://ask.seowhy.com/question/42855')
     p2p.start()
